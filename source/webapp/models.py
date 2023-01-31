@@ -49,7 +49,7 @@ class Comment(models.Model):
                                verbose_name="Автор")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Время создания")
     updated_at = models.DateTimeField(auto_now=True, verbose_name="Время изменения")
-    comm_user_like = models.ManyToManyField(get_user_model(), blank=True, related_name='comm_user_likes')
+    like = models.ManyToManyField(get_user_model(), blank=True, related_name='like')
 
     def __str__(self):
         return f'{self.pk}. {self.text[:20]}'

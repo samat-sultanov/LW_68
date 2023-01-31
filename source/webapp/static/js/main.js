@@ -1,35 +1,70 @@
-// $(document).ready(function(){
-// $('.like-form').submit(function(event){
-//                 event.preventDefault()
-//                 const article_id = $(this).attr('id')
-//                 const likeText = $(`.like-btn${article_id}`).text()
-//                 const trim = $.trim(likeText)
-//                 const url = $(this).attr('action')
-//
-//                 let res;
-//                 const likes = $(`.like-count${article_id}`).text()
-//                 const trimCount = parseInt(likes)
-//
-//                 $.ajax({
-//                     type: 'POST',
-//                     url: url,
-//                     data: {
-//                         'csrfmiddlewaretoken': $('input[name=csrfmiddlewaretoken]').val(),
-//                         'article_id':article_id,
-//                     },
-//                     success: function(response) {
-//                         if(trim === 'Unlike') {
-//                             $(`.like-btn${article_id}`).text('Like')
-//                             res = trimCount - 1
-//                         } else {
-//                             $(`.like-btn${article_id}`).text('Unlike')
-//                             res = trimCount + 1
-//                         }
-//                         $(`.like-count${article_id}`).text(res)
-//                     },
-//                     error: function(response) {
-//                         console.log('error', response)
-//                     }
-//                 })
-//             })
-// });
+async function makeRequest(url, method = 'GET') {
+    let response = await fetch(url, {method});
+
+    if (response.ok) {
+        return await response.json();
+    } else {
+        let error = new Error(response.statusText);
+        error.response = response;
+        throw error;
+    }
+}
+
+function onError(error) {
+    console.log(error);
+}
+
+async function ArticleAddLike(event) {
+    event.preventDefault();
+    let target = event.target;
+    let url = target.href;
+    try {
+        let response = await makeRequest(url);
+        let articleId = target.dataset.articleId;
+        let text = document.getElementById(articleId);
+        if (text.innerText === "Dislike") {
+            text.innerText = "Like";
+        } else {
+            text.innerText = "Dislike";
+        }
+        let art_like_count = response.art_like_count;
+        let p = document.getElementById('article_likes_total');
+        p.innerText = `Total likes ${art_like_count}`;
+    } catch (error) {
+        onError(error);
+    }
+}
+
+async function CommentAddLike(event) {
+    event.preventDefault();
+    let target = event.target;
+    let url = target.href;
+    try {
+        let response = await makeRequest(url);
+        let commentId = target.dataset.commentId;
+        let text = document.getElementById(commentId);
+        if (text.innerText === "Dislike") {
+            text.innerText = "Like";
+        } else {
+            text.innerText = "Dislike";
+        }
+        let comm_like_count = response.comm_like_count;
+        let p = document.getElementById('comment_likes_total');
+        p.innerText = `Total likes ${comm_like_count}`;
+    } catch (error) {
+        onError(error);
+    }
+}
+
+async function onloadFunc() {
+    let likes = document.getElementsByClassName("btn likes");
+    for (let i = 0; i < likes.length; i++) {
+        likes[i].addEventListener("click", ArticleAddLike);
+    }
+    let like = document.getElementsByClassName("btn likes comment");
+    for (let i = 0; i < like.length; i++) {
+        like[i].addEventListener("click", CommentAddLike);
+    }
+}
+
+window.addEventListener("load", onloadFunc);

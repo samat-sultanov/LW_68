@@ -2,8 +2,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMix
 from django.db.models import Q
 from django.urls import reverse_lazy
 from django.utils.http import urlencode
-from webapp.models import Article
-from accounts.models import Profile
+from webapp.models import Article, Comment
 from webapp.forms import ArticleForm, SimpleSearchForm, ArticleDeleteForm
 from django.http import JsonResponse
 
@@ -21,6 +20,19 @@ class ArticleLikeView(LoginRequiredMixin, View):
             article.likes.add(user)
 
         return JsonResponse({"art_like_count": article.likes.count()})
+
+
+class CommentLikeView(LoginRequiredMixin, View):
+    def get(self, request, *args, pk, **kwargs):
+        comment = Comment.objects.get(pk=pk)
+        user = self.request.user
+
+        if user in comment.likes.all():
+            comment.likes.remove(user)
+        else:
+            comment.likes.add(user)
+
+        return JsonResponse({"comm_like_count": comment.likes.count()})
 
 
 class IndexViews(ListView):
@@ -113,5 +125,3 @@ class ArticleDeleteView(PermissionRequiredMixin, DeleteView):
             return self.form_valid(form)
         else:
             return self.form_invalid(form)
-
-
