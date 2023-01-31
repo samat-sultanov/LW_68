@@ -1,4 +1,4 @@
-from django.contrib.auth import get_user_model,login,  update_session_auth_hash
+from django.contrib.auth import get_user_model, login,  update_session_auth_hash
 from django.contrib.auth.views import PasswordChangeView
 from django.shortcuts import redirect
 from django.urls import reverse

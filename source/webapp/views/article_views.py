@@ -3,19 +3,24 @@ from django.db.models import Q
 from django.urls import reverse_lazy
 from django.utils.http import urlencode
 from webapp.models import Article
+from accounts.models import Profile
 from webapp.forms import ArticleForm, SimpleSearchForm, ArticleDeleteForm
 from django.http import JsonResponse
 
-from django.views.generic import RedirectView, ListView, DetailView, CreateView, UpdateView, DeleteView, View
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView, View
 
 
-class TestView(View):
-    def get(self, request, *args, **kwargs):
-        # response = JsonResponse({'test': 2, 'test2': [1,2,3]})
-        response = JsonResponse({'error': 'qweqweqweqwwe'})
-        response.status_code =400
+class ArticleLikeView(LoginRequiredMixin, View):
+    def get(self, request, *args, pk, **kwargs):
+        article = Article.objects.get(pk=pk)
+        user = self.request.user
 
-        return response
+        if user in article.likes.all():
+            article.likes.remove(user)
+        else:
+            article.likes.add(user)
+
+        return JsonResponse({"art_like_count": article.likes.count()})
 
 
 class IndexViews(ListView):
@@ -65,10 +70,6 @@ class ArticleView(DetailView):
         return context
 
 
-class MyRedirectView(RedirectView):
-    url = 'https://ccbv.co.uk/projects/Django/4.1/django.views.generic.base/RedirectView/'
-
-
 class ArticleCreateView(LoginRequiredMixin, CreateView):
     template_name = "article/article_create.html"
     model = Article
@@ -77,14 +78,6 @@ class ArticleCreateView(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         form.instance.author = self.request.user
         return super().form_valid(form)
-
-    # def dispatch(self, request, *args, **kwargs):
-    #     if not request.user.is_authenticated:
-    #         return redirect('accounts:login')
-    #     if not request.user.has_perm('webapp.add_article'):
-    #         raise PermissionDenied
-    #     return super().dispatch( request, *args, **kwargs)
-
 
 
 class ArticleUpdateView(PermissionRequiredMixin, UpdateView):
