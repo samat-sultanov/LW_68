@@ -27,12 +27,12 @@ class CommentLikeView(LoginRequiredMixin, View):
         comment = Comment.objects.get(pk=pk)
         user = self.request.user
 
-        if user in comment.likes.all():
-            comment.likes.remove(user)
+        if user in comment.like.all():
+            comment.like.remove(user)
         else:
-            comment.likes.add(user)
+            comment.like.add(user)
 
-        return JsonResponse({"comm_like_count": comment.likes.count()})
+        return JsonResponse({"comm_like_count": comment.like.count()})
 
 
 class IndexViews(ListView):

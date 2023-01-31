@@ -61,6 +61,7 @@ async function onloadFunc() {
     for (let i = 0; i < likes.length; i++) {
         likes[i].addEventListener("click", ArticleAddLike);
     }
+
     let like = document.getElementsByClassName("btn likes comment");
     for (let i = 0; i < like.length; i++) {
         like[i].addEventListener("click", CommentAddLike);
